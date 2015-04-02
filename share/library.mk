@@ -1,5 +1,5 @@
 ifndef TOP
-$(error TOP is not set)
+$(error variable TOP is not set)
 endif
 
 SHELL   := /usr/bin/env bash
@@ -30,7 +30,7 @@ configure:
 
 clean:
 	cabal clean
-	rm -f cabal.config
+	-rm cabal.config
 
 sdist:
 	cabal sdist
