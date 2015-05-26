@@ -38,7 +38,7 @@ module Network.AWS.Data.Internal.XML
     , nodes
     , (=@)
     , extractRoot
-    , unsafeToXML
+    , flatten
     ) where
 
 import           Control.Applicative
@@ -117,10 +117,15 @@ extractRoot g ns =
 -- AWS service model terminology.
 --
 -- It is applied by the generator/templating in safe contexts only.
-unsafeToXML :: (Show a, ToXML a) => a -> Node
-unsafeToXML x =
-    fromMaybe (error $ "Failed to unflatten node-list for: " ++ show x)
-              (listToMaybe (toXML x))
+flatten :: ToXML a => a -> [Node]
+flatten = map flat . toXML
+  where
+    flat (NodeElement e) = NodeElement
+        e { elementNodes = concatMap flat' (elementNodes e) }
+    flat n               = n
+
+    flat' (NodeElement e) = elementNodes e
+    flat' n               = [n]
 
 withContent :: String -> [Node] -> Either String (Maybe Text)
 withContent n = exactly >=> \case

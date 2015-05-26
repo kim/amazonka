@@ -11,12 +11,12 @@ instance ToXML {{ type.name }} where
   {% if type.contents | empty %}
     toXML = const (nodes "{{ type.name }}" [])
   {% else %}
-    toXML {{ type.name }}{..} = nodes "{{ type.name }}"
+    toXML {{ type.name }}{..} = nodes "{{ type.name }}" $ concat
     {% for field in type.contents %}
       {% if field.value.flattened && !(field.value.protocol == "ec2") %}
-        {% include "list.ede" %} {{ "unsafeToXML" | justifyLeft(type.contentPad) }}     {{ field.value.name }}
+        {% include "list.ede" %} {{ "flatten" | justifyLeft(type.contentPad) }} {{ field.value.name }}
       {% else %}
-        {% include "list.ede" %} "{{ field.value.locationName | concat("\"") | justifyLeft(type.contentPad) }} =@ {{ field.value.name }}
+        {% include "list.ede" %} ["{{ field.value.locationName | concat("\"") | justifyLeft(type.contentPad) }} =@ {{ field.value.name }}]
       {% endif %}
     {% endfor %}
         ]
